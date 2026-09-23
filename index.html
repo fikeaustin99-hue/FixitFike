@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>FF — Fike Fix, Vidalia GA</title>
+<title> Fike Fix, Vidalia GA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -45,14 +45,25 @@
     background: rgba(246,243,236,.92); backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
   }
-  :root[data-theme="dark"] header, @media (prefers-color-scheme: dark) { }
+  :root[data-theme="dark"] header { background: rgba(20,24,31,.92); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) header { background: rgba(20,24,31,.92); }
+  }
   header .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
   .brandmark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .brandmark .monogram {
-    width: 38px; height: 38px; border-radius: 10px; background: var(--blue-deep); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; letter-spacing: -.02em;
-    flex: none;
+    width: 42px; height: 42px; border-radius: 10px; background: var(--blue-deep); color: var(--brass);
+    display: flex; align-items: center; justify-content: center; flex: none;
+    border: 1px solid rgba(185,139,78,.7); box-shadow: inset 0 0 0 3px rgba(255,255,255,.04);
   }
+  .brandmark .monogram svg { width: 34px; height: 34px; }
+  .brandmark .monogram .board { fill: var(--brass); }
+  .brandmark .monogram .trace { fill: none; stroke: var(--blue-deep); stroke-width: 1.15; stroke-linecap: round; stroke-linejoin: round; }
+  .brandmark .monogram .screwdriver { fill: #D6AE70; stroke: #6F4D1E; stroke-width: .7; stroke-linejoin: round; }
+  .brandmark .monogram .driver-detail { fill: #6F4D1E; }
+  .brandmark:hover .monogram { border-color: #D6AE70; box-shadow: inset 0 0 0 3px rgba(255,255,255,.08), 0 3px 12px rgba(30,50,83,.16); }
+  .brandmark:focus-visible { outline: 2px solid var(--brass); outline-offset: 4px; border-radius: 11px; }
+  .brandmark:focus-visible .monogram { box-shadow: none; }
   .brandmark .word { font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
   nav.mainnav { display: flex; align-items: center; gap: 28px; }
   nav.mainnav a {
@@ -163,7 +174,18 @@
 <header>
   <div class="wrap">
     <a class="brandmark" href="#top">
-      <span class="monogram">FF</span>
+      <span class="monogram" aria-label="Fike Fix circuit board and screwdriver mark">
+        <svg viewBox="0 0 40 40" role="img" aria-hidden="true">
+          <path class="board" d="M7 4h19l10 10v20a2 2 0 0 1-2 2H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+          <path class="trace" d="M7 10h7m-7 7h5m-5 8h8m7-17v5h8m-8 5h4v8m-12-1v6m-1-23v4"/>
+          <circle class="trace" cx="9" cy="10" r="1.5"/>
+          <circle class="trace" cx="9" cy="25" r="1.5"/>
+          <circle class="trace" cx="29" cy="14" r="1.5"/>
+          <path class="screwdriver" d="m14 28 9-9 3 3-9 9-5 1z"/>
+          <path class="screwdriver" d="m22 17 4-4 4 4-4 4z"/>
+          <path class="driver-detail" d="m27 12 2-2 3 3-2 2z"/>
+        </svg>
+      </span>
       <span class="word">Fike Fix</span>
     </a>
     <nav class="mainnav">
@@ -185,7 +207,7 @@
       <div>
         <div class="eyebrow-stamp">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg>
-          Licensed &amp; insured · Vidalia, GA
+          Vidalia, GA
         </div>
         <h1>Small jobs done right, by <span>FF</span>.</h1>
         <p class="lede">Austin Fike handles the mounting, patching, fixing, and troubleshooting most other handymen skip — from a wobbly shelf to a laptop that won't boot. One call, one person, no runaround.</p>
@@ -277,8 +299,8 @@
         </div>
         <div class="why-item">
           <span class="num mono">03</span>
-          <h3>Local, not a dispatch call</h3>
-          <p>You're talking to the person doing the work, not a call center booking someone else's schedule.</p>
+          <h3>Local</h3>
+          <p>You're talking to the person doing the work</p>
         </div>
       </div>
     </div>
@@ -318,7 +340,7 @@
     </div>
   </div>
   <div class="wrap">
-    <div class="wink">FF — Fike Fix, or FixIt Fike, depending which way you read it. Either way: small jobs done right.</div>
+    <div class="wink">Fike Fix, or FixIt Fike, depending which way you read it. Either way: small jobs done right.</div>
   </div>
 </footer>
 
