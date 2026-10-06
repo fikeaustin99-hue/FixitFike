@@ -26,6 +26,20 @@ Reviews are stored in a **Supabase database** (project `rpspbwsmfnlakzcuskul`).
    `approved` to `true`. It appears on the site right away.
 4. **To reply publicly:** fill in the `reply` column. **To remove:** delete the row.
 
+### Photos
+
+Customers can attach up to 4 photos. Each photo is shrunk on their device
+(max 1600px JPEG, location data removed) and uploaded to the private
+`review-photos` storage bucket as `<review id>/1.jpg`, `2.jpg`, and so on. The
+paths are saved in the review's `photos` column.
+
+- Photos are **only visible after you approve the review**. To check them
+  before approving: Supabase dashboard -> Storage -> `review-photos` -> the
+  folder named after the review's `id`.
+- To remove one photo, delete it from Storage and remove its path from the
+  review's `photos` list. To remove all, clear `photos` (set it to `{}`).
+- Photos need the database. In backup mode the photo field is hidden.
+
 Database rules (row-level security) only let visitors read approved reviews
 and submit new unapproved ones. Visitors cannot approve, edit, reply to, or
 delete reviews. The key in `reviews-config.js` is the public publishable key;

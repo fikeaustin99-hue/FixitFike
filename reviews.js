@@ -7,7 +7,9 @@
     publishedFile: 'reviews.json',
     supabaseUrl: '',
     supabaseAnonKey: '',
-    pageSize: 6
+    pageSize: 6,
+    photoBucket: 'review-photos',
+    maxPhotos: 4
   }, window.FIKE_REVIEWS_CONFIG || {});
 
   var PENDING_KEY = 'fikefix.pendingReviews.v1';
@@ -53,7 +55,16 @@
       comment: comment,
       reply: String(r.reply || '').trim().slice(0, 600),
       created_at: date.toISOString(),
-      pending: !!r.pending
+      pending: !!r.pending,
+      // Storage paths ("<review id>/1.jpg") from the database
+      photos: (Array.isArray(r.photos) ? r.photos : []).filter(function (x) {
+        return typeof x === 'string' && /^[0-9a-f-]{36}\/[1-4]\.jpg$/.test(x);
+      }).slice(0, 4),
+      // Small preview images kept on the customer's device for their pending review
+      thumbs: (Array.isArray(r.thumbs) ? r.thumbs : []).filter(function (x) {
+        return typeof x === 'string' && /^data:image\/jpeg;base64,/.test(x);
+      }).slice(0, 4),
+      photoUrls: []
     };
   }
 
@@ -65,7 +76,13 @@
     write: function (list) {
       try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); } catch (e) { /* private mode */ }
     },
-    add: function (r) { var l = local.read(); l.unshift(r); local.write(l.slice(0, 10)); },
+    add: function (r) {
+      var l = local.read(); l.unshift(r); l = l.slice(0, 10);
+      local.write(l);
+      // If storage is full, keep the review text and drop the device previews.
+      try { if (localStorage.getItem(PENDING_KEY) !== JSON.stringify(l)) throw 0; }
+      catch (e) { local.write(l.map(function (x) { return Object.assign({}, x, { thumbs: [] }); })); }
+    },
     // Drop pending items once they show up in the published list.
     prune: function (published) {
       var ids = {}; published.forEach(function (p) { ids[p.id] = 1; });
@@ -83,10 +100,39 @@
   }
 
   async function loadSupabase() {
-    var q = '/rest/v1/reviews?select=id,name,town,service,rating,comment,reply,created_at&approved=eq.true&order=created_at.desc&limit=500';
+    var q = '/rest/v1/reviews?select=id,name,town,service,rating,comment,reply,photos,created_at&approved=eq.true&order=created_at.desc&limit=500';
     var res = await fetch(SB + q, { headers: sbHeaders() });
     if (!res.ok) throw new Error('Supabase ' + res.status);
     return res.json();
+  }
+
+  // Photos live in a private bucket; the database only lets visitors open
+  // photos that belong to approved reviews, via short-lived signed links.
+  async function signPhotos(reviews) {
+    var paths = [];
+    reviews.forEach(function (r) { paths = paths.concat(r.photos); });
+    if (!paths.length) return;
+    try {
+      var res = await fetch(SB + '/storage/v1/object/sign/' + CFG.photoBucket, {
+        method: 'POST', headers: sbHeaders(),
+        body: JSON.stringify({ expiresIn: 60 * 60 * 24, paths: paths })
+      });
+      if (!res.ok) throw new Error('sign ' + res.status);
+      var map = {};
+      (await res.json()).forEach(function (x) { if (x.signedURL) map[x.path] = SB + '/storage/v1' + x.signedURL; });
+      reviews.forEach(function (r) {
+        r.photoUrls = r.photos.map(function (p) { return map[p]; }).filter(Boolean);
+      });
+    } catch (e) { console.warn('[reviews] photos unavailable', e); }
+  }
+
+  async function uploadPhoto(path, blob) {
+    var res = await fetch(SB + '/storage/v1/object/' + CFG.photoBucket + '/' + path, {
+      method: 'POST',
+      headers: Object.assign(sbHeaders(), { 'Content-Type': 'image/jpeg', 'x-upsert': 'false' }),
+      body: blob
+    });
+    if (!res.ok) throw new Error('Could not upload your photos (' + res.status + '). Try again, or send the review without photos.');
   }
 
   var Store = {
@@ -104,7 +150,8 @@
         try { rows = await loadFile(); } catch (e) { console.warn('[reviews]', e); rows = []; }
         Store.source = 'file';
       }
-      var published = rows.map(clean).filter(Boolean).map(function (r) { r.pending = false; return r; });
+      var published = rows.map(clean).filter(Boolean).map(function (r) { r.pending = false; r.thumbs = []; return r; });
+      if (Store.source === 'database') await signPhotos(published);
       var pending = local.prune(published).map(function (r) { r.pending = true; return r; });
       return { published: published, pending: pending };
     },
@@ -112,16 +159,22 @@
     async submit(review) {
       // 1) Live database
       if (hasSupabase && Store.source === 'database') {
+        var paths = [];
+        for (var i = 0; i < (review.files || []).length; i++) {
+          var path = review.id + '/' + (i + 1) + '.jpg';
+          await uploadPhoto(path, review.files[i].blob);
+          paths.push(path);
+        }
         var res = await fetch(SB + '/rest/v1/reviews', {
           method: 'POST',
           headers: sbHeaders({ Prefer: 'return=minimal' }),
           body: JSON.stringify({
             id: review.id, name: review.name, town: review.town || null, service: review.service || null,
-            rating: review.rating, comment: review.comment, approved: false
+            rating: review.rating, comment: review.comment, photos: paths, approved: false
           })
         });
         if (!res.ok) throw new Error('Could not save your review (' + res.status + ').');
-        local.add(Object.assign({}, review, { pending: true }));
+        local.add(Object.assign({}, review, { files: undefined, photos: paths, pending: true }));
         return { via: 'database' };
       }
 
@@ -269,6 +322,19 @@
     top.appendChild(d);
     c.appendChild(top);
     c.appendChild(el('p', 'rv-text', r.comment));
+    var pics = r.photoUrls.length ? r.photoUrls : r.thumbs;
+    if (pics.length) {
+      var g = el('div', 'rv-photos');
+      pics.forEach(function (src, i) {
+        var b = el('button', 'rv-photo'); b.type = 'button';
+        b.setAttribute('aria-label', 'Open photo ' + (i + 1) + ' of ' + pics.length + ' from ' + r.name);
+        var im = el('img'); im.src = src; im.alt = 'Photo from ' + r.name + "'s job"; im.loading = 'lazy'; im.decoding = 'async';
+        b.appendChild(im);
+        b.addEventListener('click', function () { openViewer(pics, i, r.name); });
+        g.appendChild(b);
+      });
+      c.appendChild(g);
+    }
     if (r.reply) {
       var rep = el('div', 'rv-reply'); rep.appendChild(el('b', null, 'Reply from Austin'));
       rep.appendChild(document.createTextNode(r.reply)); c.appendChild(rep);
@@ -312,6 +378,38 @@
   }
 
   function render() { renderSummary(); renderList(); }
+
+  /* ---------------- Photo viewer ---------------- */
+  var viewer = $('[data-rv-viewer]');
+  var vState = { pics: [], i: 0, name: '' };
+  function showPhoto() {
+    var img = $('[data-rv-viewer-img]');
+    img.src = vState.pics[vState.i];
+    img.alt = 'Photo ' + (vState.i + 1) + ' from ' + vState.name;
+    $('[data-rv-viewer-count]').textContent = vState.pics.length > 1 ? (vState.i + 1) + ' / ' + vState.pics.length : '';
+    $$('[data-rv-viewer-nav]').forEach(function (b) { b.hidden = vState.pics.length < 2; });
+  }
+  function openViewer(pics, i, name) {
+    vState = { pics: pics, i: i, name: name }; showPhoto();
+    if (typeof viewer.showModal === 'function') viewer.showModal(); else viewer.setAttribute('open', '');
+  }
+  function step(d) { vState.i = (vState.i + d + vState.pics.length) % vState.pics.length; showPhoto(); }
+  viewer.addEventListener('click', function (e) {
+    var nav = e.target.closest('[data-rv-viewer-nav]');
+    if (nav) { step(+nav.dataset.rvViewerNav); return; }
+    if (e.target.closest('[data-rv-viewer-close]') || e.target === viewer) { if (viewer.close) viewer.close(); else viewer.removeAttribute('open'); }
+  });
+  viewer.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+  });
+  var touchX = null;
+  viewer.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+  viewer.addEventListener('touchend', function (e) {
+    if (touchX == null || vState.pics.length < 2) return;
+    var dx = e.changedTouches[0].clientX - touchX; touchX = null;
+    if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+  });
 
   async function refresh() {
     try {
@@ -362,6 +460,78 @@
   var comment = form.elements.comment;
   comment.addEventListener('input', function () { $('[data-rv-chars]').textContent = comment.value.length + ' / 600'; });
 
+  /* Photo picker: shrink each photo on the device (fast uploads, strips
+   * hidden location data), keep up to CFG.maxPhotos. */
+  var photoField = $('[data-rv-photo-field]');
+  var photoInput = $('[data-rv-photo-input]');
+  var photoList = $('[data-rv-photo-list]');
+  var photoAdd = $('[data-rv-photo-add]');
+  var picked = []; // { blob, thumb }
+
+  function loadImage(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('unreadable')); };
+      img.src = url;
+    });
+  }
+  function toJpeg(img, max, quality) {
+    var w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+    var cv = document.createElement('canvas');
+    cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+    var ctx = cv.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+    return cv;
+  }
+  async function prepPhoto(file) {
+    var img = await loadImage(file);
+    var big = toJpeg(img, 1600);
+    var blob = await new Promise(function (res) { big.toBlob(res, 'image/jpeg', 0.82); });
+    if (!blob) throw new Error('unreadable');
+    var thumb = toJpeg(img, 360).toDataURL('image/jpeg', 0.7);
+    return { blob: blob, thumb: thumb };
+  }
+  function renderPicked() {
+    photoList.textContent = '';
+    picked.forEach(function (p, i) {
+      var li = el('li', 'rv-pick');
+      var im = el('img'); im.src = p.thumb; im.alt = 'Selected photo ' + (i + 1);
+      li.appendChild(im);
+      var x = el('button', 'rv-pick-x'); x.type = 'button'; x.setAttribute('aria-label', 'Remove photo ' + (i + 1));
+      x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+      x.addEventListener('click', function () { picked.splice(i, 1); renderPicked(); });
+      li.appendChild(x);
+      photoList.appendChild(li);
+    });
+    photoAdd.hidden = picked.length >= CFG.maxPhotos;
+    $('[data-rv-photo-count]').textContent = picked.length + ' / ' + CFG.maxPhotos;
+  }
+  if (photoField) {
+    photoField.hidden = !hasSupabase;
+    photoInput.addEventListener('change', async function () {
+      var files = Array.prototype.slice.call(photoInput.files || []);
+      photoInput.value = '';
+      setErr('photos', '');
+      var room = CFG.maxPhotos - picked.length;
+      if (files.length > room) setErr('photos', 'Up to ' + CFG.maxPhotos + ' photos. Only the first ' + room + ' were added.');
+      files = files.slice(0, room);
+      photoAdd.classList.add('busy');
+      for (var i = 0; i < files.length; i++) {
+        if (!/^image\//.test(files[i].type) && !/\.(jpe?g|png|webp|heic|heif|gif)$/i.test(files[i].name)) {
+          setErr('photos', 'That file is not a photo.'); continue;
+        }
+        try { picked.push(await prepPhoto(files[i])); }
+        catch (e) { setErr('photos', 'One photo could not be opened. Try a JPEG or PNG.'); }
+        renderPicked();
+      }
+      photoAdd.classList.remove('busy');
+    });
+    renderPicked();
+  }
+
   function setErr(name, msg) { var e = form.querySelector('[data-err="' + name + '"]'); if (e) e.textContent = msg; }
   ['name', 'service', 'comment'].forEach(function (n) {
     form.elements[n].addEventListener('input', function () { setErr(n, ''); status.textContent = ''; });
@@ -370,6 +540,7 @@
 
   function openForm() {
     form.hidden = false; done.hidden = true;
+    if (photoField) photoField.hidden = Store.source !== 'database';
     $$('[data-err]', form).forEach(function (x) { x.textContent = ''; });
     status.textContent = ''; status.className = 'rv-status';
     if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
@@ -418,10 +589,12 @@
       rating: currentRating(),
       comment: comment.value,
       created_at: new Date().toISOString(),
-      pending: true
+      pending: true,
+      thumbs: Store.source === 'database' ? picked.map(function (p) { return p.thumb; }) : []
     });
+    review.files = Store.source === 'database' ? picked.slice() : [];
 
-    submitBtn.disabled = true; submitBtn.textContent = 'Sending…';
+    submitBtn.disabled = true; submitBtn.textContent = review.files.length ? 'Uploading photos…' : 'Sending…';
     status.textContent = ''; status.className = 'rv-status';
     try {
       var result = await Store.submit(review);
@@ -433,7 +606,7 @@
         var a = el('a', null, 'email it to Fike'); a.href = result.mailto; a.style.fontWeight = '800';
         msg.appendChild(a); msg.appendChild(document.createTextNode('.'));
       }
-      form.reset(); paintStars(0); $('[data-rv-chars]').textContent = '0 / 600';
+      form.reset(); paintStars(0); picked = []; if (photoField) renderPicked(); $('[data-rv-chars]').textContent = '0 / 600';
       form.hidden = true; done.hidden = false;
       state.pending = local.read().map(function (r) { r.pending = true; return r; });
       state.filter = 'all';

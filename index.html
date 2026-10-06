@@ -170,6 +170,36 @@
   .rv-done .check { width: 54px; height: 54px; border-radius: 50%; background: rgba(76,107,82,.15); color: var(--good); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
   .rv-done h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; }
   .rv-done p { margin: 0 0 18px; font-size: 14px; color: var(--slate); line-height: 1.6; }
+
+  /* Review photos */
+  .rv-photos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .rv-photo { padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; width: 92px; height: 92px; background: var(--track); cursor: zoom-in; flex: none; }
+  .rv-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s ease; }
+  .rv-photo:hover img { transform: scale(1.05); }
+  .rv-photo:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  .rv-picks { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  .rv-pick { position: relative; width: 76px; height: 76px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .rv-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .rv-pick-x { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: none; background: rgba(14,22,36,.72); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .rv-pick-x svg { width: 14px; height: 14px; }
+  .rv-photo-add { width: 76px; height: 76px; border-radius: 10px; border: 1.5px dashed var(--line); background: var(--paper); color: var(--slate); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+  .rv-photo-add svg { width: 22px; height: 22px; }
+  .rv-photo-add:hover, .rv-photo-add:focus-within { border-color: var(--brass); color: var(--brass-deep); }
+  .rv-photo-add.busy { opacity: .6; cursor: progress; }
+  .rv-photo-add input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .rv-photo-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  dialog.rv-viewer { border: none; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; width: 100vw; height: 100vh; }
+  dialog.rv-viewer::backdrop { background: rgba(8,12,20,.9); }
+  .rv-viewer-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 56px 16px; box-sizing: border-box; }
+  .rv-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .rv-vbtn { position: absolute; border: none; background: rgba(255,255,255,.14); color: #fff; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .rv-vbtn:hover { background: rgba(255,255,255,.26); }
+  .rv-vbtn svg { width: 22px; height: 22px; }
+  .rv-vbtn.close { top: 12px; right: 12px; }
+  .rv-vbtn.prev { left: 12px; top: 50%; transform: translateY(-50%); }
+  .rv-vbtn.next { right: 12px; top: 50%; transform: translateY(-50%); }
+  .rv-vcount { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: #fff; font-size: 13px; font-weight: 700; }
+  @media (max-width: 560px) { .rv-photo { width: 76px; height: 76px; } }
   @media (prefers-reduced-motion: reduce) { .rv-card, .skeleton { animation: none; } .rv-bar .fill { transition: none; } }
 
   /* ---------------- Hero ---------------- */
@@ -481,6 +511,21 @@
         <span class="err" data-err="comment"></span>
       </div>
 
+
+      <div class="field" data-rv-photo-field hidden>
+        <span class="lbl-like" id="rv-photos-label" style="font-size:13px;font-weight:800;">Photos <span class="opt">(optional)</span></span>
+        <div class="rv-photo-row" role="group" aria-labelledby="rv-photos-label">
+          <ul class="rv-picks" data-rv-photo-list></ul>
+          <label class="rv-photo-add" data-rv-photo-add>
+            <input type="file" accept="image/*" multiple data-rv-photo-input aria-label="Add photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+            Add
+          </label>
+        </div>
+        <span class="hint"><span>Before and after shots welcome. Shown once approved.</span><span data-rv-photo-count>0 / 4</span></span>
+        <span class="err" data-err="photos"></span>
+      </div>
+
       <div class="hp" aria-hidden="true">
         <label for="rv-website">Leave this empty</label>
         <input id="rv-website" name="website" tabindex="-1" autocomplete="off">
@@ -498,6 +543,17 @@
       <h3>Thanks for the review.</h3>
       <p data-rv-done-msg>Austin will read it shortly. Once approved it'll appear here for everyone.</p>
       <button class="btn primary" type="button" data-rv-close>Done</button>
+    </div>
+  </dialog>
+
+
+  <dialog class="rv-viewer" data-rv-viewer aria-label="Review photo">
+    <div class="rv-viewer-inner">
+      <img data-rv-viewer-img alt="">
+      <button class="rv-vbtn close" type="button" data-rv-viewer-close aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="rv-vbtn prev" type="button" data-rv-viewer-nav="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="rv-vbtn next" type="button" data-rv-viewer-nav="1" aria-label="Next photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      <div class="rv-vcount" data-rv-viewer-count></div>
     </div>
   </dialog>
 
