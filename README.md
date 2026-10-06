@@ -14,18 +14,33 @@ https://fikeaustin99-hue.github.io/FixitFike/
 | `reviews.json` | **Review storage file** — every review in here is shown on the site |
 | `supabase-setup.sql` | Optional: live database setup |
 
-## How reviews work (no setup needed)
+## How reviews work
 
-1. A customer clicks **Write a review**, picks 1–5 stars, and fills in the form.
-2. The review is emailed to `Fikeaustin99@gmail.com` (via FormSubmit). The
-   customer sees their review on their own device marked "Pending approval".
-3. To publish it, open `reviews.json` on GitHub (pencil icon to edit), paste the
-   JSON block from the email inside the `[ ]` brackets, and commit. The site
-   updates in about a minute.
+Reviews are stored in a **Supabase database** (project `rpspbwsmfnlakzcuskul`).
 
-**First time only:** the very first review triggers a FormSubmit email asking
-you to confirm `Fikeaustin99@gmail.com`. Click the confirm link once; after
-that every review comes straight to your inbox.
+1. A customer clicks **Write a review** and submits the form.
+2. The review is saved to the `reviews` table with `approved = false`, so it is
+   hidden from the public. The customer sees it on their own device marked
+   "Pending approval".
+3. **To approve:** Supabase dashboard -> Table Editor -> `reviews` -> set
+   `approved` to `true`. It appears on the site right away.
+4. **To reply publicly:** fill in the `reply` column. **To remove:** delete the row.
+
+Database rules (row-level security) only let visitors read approved reviews
+and submit new unapproved ones. Visitors cannot approve, edit, reply to, or
+delete reviews. The key in `reviews-config.js` is the public publishable key;
+never put the secret/service-role key in the site.
+
+### Backup: reviews.json + email
+
+If the database is unreachable (for example, a free Supabase project paused
+after a week of inactivity), the site automatically:
+
+- shows reviews from `reviews.json`, and
+- emails new submissions to `Fikeaustin99@gmail.com` (FormSubmit) with a
+  ready-to-paste JSON block. The first email asks you to confirm the address once.
+
+To restore the database, open the Supabase dashboard and click **Restore project**.
 
 ### reviews.json format
 
@@ -44,19 +59,6 @@ that every review comes straight to your inbox.
 ]
 ```
 
-Separate multiple reviews with a comma. `town`, `service`, and `reply` are optional.
-To remove a review, delete its block. To reply publicly, fill in `reply`.
+### Database schema
 
-## Optional: live database (Supabase)
-
-If you'd rather have reviews saved automatically instead of pasting them:
-
-1. Create a free project at https://supabase.com.
-2. In **SQL Editor**, run all of `supabase-setup.sql`.
-3. In **Settings → API**, copy the Project URL and the **anon public** key into
-   `reviews-config.js` (`supabaseUrl`, `supabaseAnonKey`). Never use the
-   service-role key.
-4. Approve reviews in **Table Editor → reviews** by setting `approved` to `true`.
-
-If the database is ever unreachable, the site automatically falls back to
-showing `reviews.json`.
+`supabase-setup.sql` recreates the table and security rules on a new project.

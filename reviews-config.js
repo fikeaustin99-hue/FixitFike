@@ -21,9 +21,11 @@ window.FIKE_REVIEWS_CONFIG = {
   // Published reviews file (relative path so it works on GitHub Pages sub-paths).
   publishedFile: 'reviews.json',
 
-  // Optional live database. Leave blank to use reviews.json + email.
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  // Live database (connected). Clear both values to go back to reviews.json + email.
+  supabaseUrl: 'https://rpspbwsmfnlakzcuskul.supabase.co',
+  // Public publishable key (safe in the browser; database rules only allow
+  // reading approved reviews and submitting new unapproved ones).
+  supabaseAnonKey: 'sb_publishable_fZFOU1rfqXxwYcsXTrynVQ_9E8GbCIj',
 
   // How many reviews to show before "Show more".
   pageSize: 6

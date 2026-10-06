@@ -22,11 +22,10 @@
   var SB = hasSupabase ? CFG.supabaseUrl.trim().replace(/\/$/, '') : '';
 
   function sbHeaders(extra) {
-    return Object.assign({
-      apikey: CFG.supabaseAnonKey,
-      Authorization: 'Bearer ' + CFG.supabaseAnonKey,
-      'Content-Type': 'application/json'
-    }, extra || {});
+    var h = { apikey: CFG.supabaseAnonKey, 'Content-Type': 'application/json' };
+    // Legacy JWT anon keys also go in Authorization; new sb_publishable_ keys only use apikey.
+    if (/^eyJ/.test(CFG.supabaseAnonKey)) h.Authorization = 'Bearer ' + CFG.supabaseAnonKey;
+    return Object.assign(h, extra || {});
   }
 
   function uid() {
