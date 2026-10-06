@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title> Fike Fix, Vidalia GA</title>
+<title>Fike Fix · Handyman &amp; Computer Repair, Vidalia GA</title>
+<meta name="description" content="Fike Fix: TV mounting, trimwork, furniture assembly, painting, door and lock repair, and computer repairs in Vidalia, GA. Read and leave customer reviews.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%231E3253'/%3E%3Crect x='7' y='8' width='26' height='18' rx='2' fill='%23B98B4E'/%3E%3Cpath d='M14 31h12M20 26v5' stroke='%23B98B4E' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -22,11 +24,12 @@
     --slate: #6B7686;
     --line: #DDD8CB;
     --good: #4C6B52;
+    --track: #ECE7DC;
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --paper: #14181F; --card: #1B212B; --line: #2B3340; --slate: #9AA3AC; }
+    :root:not([data-theme="light"]) { --paper: #14181F; --card: #1B212B; --line: #2B3340; --slate: #9AA3AC; --ink: #E4E8EE; --blue: #9DB7E0; --brass-deep: #CFA265; --track: #2B3340; }
   }
-  :root[data-theme="dark"] { --paper: #14181F; --card: #1B212B; --line: #2B3340; --slate: #9AA3AC; }
+  :root[data-theme="dark"] { --paper: #14181F; --card: #1B212B; --line: #2B3340; --slate: #9AA3AC; --ink: #E4E8EE; --blue: #9DB7E0; --brass-deep: #CFA265; --track: #2B3340; }
   html { scroll-padding-top: 76px; }
   * , *::before, *::after { box-sizing: border-box; }
   body {
@@ -75,7 +78,99 @@
     font-size: 13.5px; font-weight: 800; padding: 9px 15px; border-radius: 10px; text-decoration: none; white-space: nowrap;
   }
   .callbtn svg { width: 15px; height: 15px; }
-  .navlinks-mobile { display: none; }
+  [hidden] { display: none !important; }
+  header .navlinks-mobile { display: none; }
+  .navlinks-mobile a { font-size: 13.5px; font-weight: 700; color: var(--slate); text-decoration: none; padding: 10px 2px; white-space: nowrap; }
+  .navlinks-mobile a:hover { color: var(--blue); }
+  .callbtn .num-short { display: none; }
+
+  /* ---------------- Reviews ---------------- */
+  .reviews-layout { display: grid; grid-template-columns: 320px 1fr; gap: 28px; align-items: start; }
+  .rv-summary { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; position: sticky; top: 92px; }
+  .rv-avg { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+  .rv-avg .big { font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .rv-count { font-size: 13px; color: var(--slate); margin: 0 0 18px; }
+  .stars { display: inline-flex; gap: 2px; color: var(--brass); }
+  .stars svg { width: 18px; height: 18px; }
+  .stars.sm svg { width: 15px; height: 15px; }
+  .rv-bars { display: grid; gap: 7px; margin-bottom: 22px; }
+  .rv-bar { display: grid; grid-template-columns: 34px 1fr 26px; align-items: center; gap: 10px; font-size: 12.5px; color: var(--slate); font-weight: 700; }
+  .rv-bar .track { height: 8px; border-radius: 99px; background: var(--track); overflow: hidden; }
+  .rv-bar .track, .rv-bar .fill { display: block; }
+  .rv-bar .fill { height: 100%; background: var(--brass); border-radius: 99px; width: 0; transition: width .6s ease; }
+  .rv-bar .n { text-align: right; font-variant-numeric: tabular-nums; }
+  .rv-summary .btn { width: 100%; justify-content: center; }
+  .rv-mode { margin: 14px 0 0; font-size: 11.5px; color: var(--slate); line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
+  .rv-mode .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); margin-top: 5px; flex: none; }
+
+  .rv-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .rv-toolbar .lbl { font-size: 13px; font-weight: 700; color: var(--slate); }
+  .rv-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font: inherit; font-size: 12.5px; font-weight: 700; padding: 6px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--slate); cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--blue-deep); border-color: var(--blue-deep); color: #fff; }
+  .chip:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  select.sort { font: inherit; font-size: 13px; font-weight: 700; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; }
+
+  .rv-list { display: grid; gap: 12px; }
+  .rv-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; animation: rvIn .35s ease both; }
+  @keyframes rvIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .rv-card .top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+  .rv-who { display: flex; gap: 11px; align-items: center; }
+  .rv-initial { width: 38px; height: 38px; border-radius: 50%; background: var(--blue-deep); color: var(--brass); font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .rv-name { font-weight: 800; font-size: 14.5px; }
+  .rv-meta { font-size: 12px; color: var(--slate); margin-top: 2px; }
+  .rv-date { font-size: 12px; color: var(--slate); white-space: nowrap; }
+  .rv-text { margin: 0; font-size: 14px; line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; }
+  .rv-tag { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; margin-top: 12px; }
+  .rv-tag.pending { background: rgba(185,139,78,.16); color: var(--brass-deep); }
+  .rv-reply { margin-top: 14px; padding: 12px 14px; border-left: 3px solid var(--brass); background: var(--paper); border-radius: 0 10px 10px 0; font-size: 13.5px; line-height: 1.6; }
+  .rv-reply b { display: block; font-size: 12px; color: var(--brass-deep); margin-bottom: 3px; }
+  .rv-empty { background: var(--card); border: 1.5px dashed var(--line); border-radius: 14px; padding: 36px 24px; text-align: center; }
+  .rv-empty h3 { margin: 0 0 6px; font-size: 17px; font-weight: 800; }
+  .rv-empty p { margin: 0 0 16px; font-size: 14px; color: var(--slate); }
+  .rv-more { margin-top: 14px; text-align: center; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.4px solid var(--line); }
+  .skeleton { height: 118px; border-radius: 14px; background: linear-gradient(90deg, var(--card), var(--track), var(--card)); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; border: 1px solid var(--line); }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* Review form (dialog) */
+  dialog.rv-dialog { border: none; border-radius: 18px; padding: 0; width: min(560px, calc(100vw - 24px)); background: var(--card); color: var(--ink); box-shadow: 0 24px 60px rgba(10,20,40,.35); }
+  dialog.rv-dialog::backdrop { background: rgba(14,22,36,.55); backdrop-filter: blur(2px); }
+  .rv-form { padding: 26px 26px 22px; display: grid; gap: 16px; }
+  .rv-form .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .rv-form h3 { margin: 0; font-size: 20px; font-weight: 800; }
+  .rv-form .sub { margin: 4px 0 0; font-size: 13px; color: var(--slate); }
+  .xbtn { border: none; background: transparent; color: var(--slate); cursor: pointer; padding: 4px; border-radius: 8px; }
+  .xbtn svg { width: 20px; height: 20px; }
+  .field { display: grid; gap: 6px; }
+  .field label, .field legend { font-size: 13px; font-weight: 800; padding: 0; }
+  .field .opt { font-weight: 600; color: var(--slate); }
+  .field input, .field select, .field textarea { font: inherit; font-size: 14.5px; color: var(--ink); background: var(--paper); border: 1.4px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%; }
+  .field textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(185,139,78,.2); }
+  .field .hint { font-size: 12px; color: var(--slate); display: flex; justify-content: space-between; }
+  .field .err { font-size: 12px; color: #B4442F; font-weight: 700; min-height: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  fieldset.field { border: none; margin: 0; padding: 0; }
+  .star-pick { display: flex; gap: 4px; align-items: center; }
+  .star-pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .star-pick label { cursor: pointer; color: var(--line); padding: 2px; border-radius: 6px; }
+  .star-pick label svg { width: 32px; height: 32px; display: block; transition: transform .12s ease; }
+  .star-pick label.on { color: var(--brass); }
+  .star-pick label:hover svg { transform: scale(1.1); }
+  .star-pick input:focus-visible + label { outline: 2px solid var(--brass); outline-offset: 1px; }
+  .star-pick .word { margin-left: 8px; font-size: 13px; font-weight: 700; color: var(--slate); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .rv-form .actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+  .rv-status { font-size: 13px; font-weight: 700; margin: 0; }
+  .rv-status.ok { color: var(--good); }
+  .rv-status.bad { color: #B4442F; }
+  .btn[disabled] { opacity: .6; cursor: progress; }
+  .rv-done { padding: 34px 28px; text-align: center; }
+  .rv-done .check { width: 54px; height: 54px; border-radius: 50%; background: rgba(76,107,82,.15); color: var(--good); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .rv-done h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; }
+  .rv-done p { margin: 0 0 18px; font-size: 14px; color: var(--slate); line-height: 1.6; }
+  @media (prefers-reduced-motion: reduce) { .rv-card, .skeleton { animation: none; } .rv-bar .fill { transition: none; } }
 
   /* ---------------- Hero ---------------- */
   .hero {
@@ -139,13 +234,14 @@
   .why-item p { margin: 0; font-size: 13.5px; color: var(--slate); line-height: 1.6; }
 
   .quote-band {
-    background: var(--ink); color: #fff; border-radius: 18px;
+    background: var(--blue-deep); color: #fff; border-radius: 18px;
     padding: 46px 40px; display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap;
   }
   .quote-band h2 { margin: 0 0 6px; font-size: 24px; font-weight: 800; }
   .quote-band p { margin: 0; font-size: 14px; color: #B9C2CC; }
   .quote-band .actions { display: flex; gap: 10px; flex: none; }
-  .btn.light { background: #fff; color: var(--ink); }
+  .btn.light { background: #fff; color: #1E3253; }
+  .btn:focus-visible, .callbtn:focus-visible, nav a:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
 
   footer { border-top: 1px solid var(--line); padding: 40px 0 34px; }
   footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
@@ -160,10 +256,23 @@
     .services-grid { grid-template-columns: repeat(2, 1fr); }
     .why-grid { grid-template-columns: 1fr; gap: 26px; }
     nav.mainnav a { display: none; }
+    header .navlinks-mobile { display: flex; height: auto; justify-content: flex-start; gap: 22px; overflow-x: auto; border-top: 1px solid var(--line); }
+    .brandmark .word { font-size: 15px; }
     .quote-band { padding: 32px 24px; }
+    html { scroll-padding-top: 120px; }
+    .reviews-layout { grid-template-columns: 1fr; }
+    .rv-summary { position: static; }
   }
   @media (max-width: 560px) {
     .services-grid { grid-template-columns: 1fr; }
+    .callbtn .num-full { display: none; }
+    .callbtn .num-short { display: inline; }
+    .callbtn .num-short::after { content: "Call"; }
+    .two { grid-template-columns: 1fr; }
+    .rv-form { padding: 22px 18px 18px; }
+    .rv-card { padding: 18px; }
+    .quote-band .actions { width: 100%; }
+    .quote-band .actions .btn { flex: 1; justify-content: center; }
     .hero .wrap { padding: 56px 20px 64px; }
     section { padding: 52px 0; }
   }
@@ -188,13 +297,20 @@
     <nav class="mainnav">
       <a href="#services">Services</a>
       <a href="#why">Why Fike</a>
+      <a href="#reviews">Reviews</a>
       <a href="#contact">Contact</a>
     </nav>
     <a class="callbtn" href="tel:9125852124">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1.2.4 2.3.8 3.4a2 2 0 01-.5 2.1L8.1 10.5a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c1.1.4 2.2.7 3.4.8A2 2 0 0122 16.9z"/></svg>
-      (912) 585-2124
+      <span class="num-full">(912) 585-2124</span><span class="num-short" aria-hidden="true"></span>
     </a>
   </div>
+  <nav class="wrap navlinks-mobile" aria-label="Sections">
+    <a href="#services">Services</a>
+    <a href="#why">Why Fike</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact</a>
+  </nav>
 </header>
 
 <main id="top">
@@ -223,6 +339,7 @@
         <div class="row"><span class="lab">Service area</span><span class="val">Vidalia &amp; nearby, GA</span></div>
         <div class="row"><span class="lab">Response time</span><span class="val">Usually same day</span></div>
         <div class="row"><span class="lab">Estimates</span><span class="val">Free, no pressure</span></div>
+        <div class="row"><span class="lab">Customer rating</span><a class="val" href="#reviews" data-hero-rating style="text-decoration:none;">See reviews</a></div>
         <div class="row"><span class="tk mono">FIKE-0001</span><span class="val mono" style="color:var(--brass);">Small jobs done right</span></div>
       </div>
     </div>
@@ -247,7 +364,7 @@
   </section>
 
   <section class="why-strip" id="why">
-    <div class="wrap" style="padding: 72px 24px;">
+    <div class="wrap">
       <div class="section-head"><p class="kicker">WHY FIKE</p><h2>Two skill sets, one visit.</h2></div>
       <div class="why-grid">
         <div class="why-item"><span class="num mono">01</span><h3>Straightforward pricing</h3><p>Flat rates on common jobs, an hourly rate on everything else, no surprise line items on the invoice.</p></div>
@@ -256,6 +373,133 @@
       </div>
     </div>
   </section>
+
+  <section id="reviews" aria-labelledby="reviews-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">CUSTOMER REVIEWS</p>
+        <h2 id="reviews-title">What neighbors say about Fike.</h2>
+        <p>Real reviews from real jobs. Had work done? Leave a rating. Every review is read by Austin before it goes up.</p>
+      </div>
+
+      <div class="reviews-layout">
+        <aside class="rv-summary" aria-label="Rating summary">
+          <div class="rv-avg">
+            <span class="big" data-rv-avg>–</span>
+            <span class="stars" data-rv-avg-stars aria-hidden="true"></span>
+          </div>
+          <p class="rv-count" data-rv-count>Loading reviews…</p>
+          <div class="rv-bars" data-rv-bars></div>
+          <button class="btn primary" type="button" data-rv-open>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+            Write a review
+          </button>
+          <p class="rv-mode" data-rv-mode></p>
+        </aside>
+
+        <div>
+          <div class="rv-toolbar">
+            <div class="rv-chips" role="group" aria-label="Filter by rating" data-rv-filters>
+              <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+              <button class="chip" type="button" data-filter="5" aria-pressed="false">5 ★</button>
+              <button class="chip" type="button" data-filter="4" aria-pressed="false">4 ★</button>
+              <button class="chip" type="button" data-filter="low" aria-pressed="false">3 ★ &amp; under</button>
+            </div>
+            <label class="lbl">Sort
+              <select class="sort" data-rv-sort>
+                <option value="new">Newest</option>
+                <option value="high">Highest rated</option>
+                <option value="low">Lowest rated</option>
+              </select>
+            </label>
+          </div>
+          <div class="rv-list" data-rv-list aria-live="polite">
+            <div class="skeleton"></div><div class="skeleton"></div>
+          </div>
+          <div class="rv-more" data-rv-more hidden><button class="btn ghost" type="button">Show more reviews</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="rv-dialog" data-rv-dialog aria-labelledby="rv-form-title">
+    <form class="rv-form" data-rv-form novalidate>
+      <div class="head">
+        <div>
+          <h3 id="rv-form-title">Review your job with Fike</h3>
+          <p class="sub">Takes about a minute. Your review shows up once it's approved.</p>
+        </div>
+        <button class="xbtn" type="button" data-rv-close aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <fieldset class="field">
+        <legend>Your rating</legend>
+        <div class="star-pick" data-star-pick>
+          <input type="radio" name="rating" id="r1" value="1"><label for="r1" aria-label="1 star"></label>
+          <input type="radio" name="rating" id="r2" value="2"><label for="r2" aria-label="2 stars"></label>
+          <input type="radio" name="rating" id="r3" value="3"><label for="r3" aria-label="3 stars"></label>
+          <input type="radio" name="rating" id="r4" value="4"><label for="r4" aria-label="4 stars"></label>
+          <input type="radio" name="rating" id="r5" value="5"><label for="r5" aria-label="5 stars"></label>
+          <span class="word" data-star-word>Tap a star</span>
+        </div>
+        <span class="err" data-err="rating"></span>
+      </fieldset>
+
+      <div class="two">
+        <div class="field">
+          <label for="rv-name">Name</label>
+          <input id="rv-name" name="name" maxlength="60" autocomplete="given-name" placeholder="e.g. Sarah M.">
+          <span class="err" data-err="name"></span>
+        </div>
+        <div class="field">
+          <label for="rv-town">Town <span class="opt">(optional)</span></label>
+          <input id="rv-town" name="town" maxlength="40" autocomplete="address-level2" placeholder="e.g. Vidalia">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="rv-service">What did Fike help with?</label>
+        <select id="rv-service" name="service">
+          <option value="">Choose a service</option>
+          <option>TV mounting</option>
+          <option>Trimwork</option>
+          <option>Furniture assembly</option>
+          <option>Painting</option>
+          <option>Door &amp; lock repair</option>
+          <option>Computer repairs</option>
+          <option>Something else</option>
+        </select>
+        <span class="err" data-err="service"></span>
+      </div>
+
+      <div class="field">
+        <label for="rv-comment">Your review</label>
+        <textarea id="rv-comment" name="comment" maxlength="600" placeholder="How did the job go? Was Fike on time, tidy, fairly priced?"></textarea>
+        <span class="hint"><span>At least 10 characters</span><span data-rv-chars>0 / 600</span></span>
+        <span class="err" data-err="comment"></span>
+      </div>
+
+      <div class="hp" aria-hidden="true">
+        <label for="rv-website">Leave this empty</label>
+        <input id="rv-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="actions">
+        <p class="rv-status" data-rv-status role="status"></p>
+        <button class="btn ghost" type="button" data-rv-close>Cancel</button>
+        <button class="btn primary" type="submit" data-rv-submit>Submit review</button>
+      </div>
+    </form>
+
+    <div class="rv-done" data-rv-done hidden>
+      <div class="check"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
+      <h3>Thanks for the review.</h3>
+      <p data-rv-done-msg>Austin will read it shortly. Once approved it'll appear here for everyone.</p>
+      <button class="btn primary" type="button" data-rv-close>Done</button>
+    </div>
+  </dialog>
 
   <section id="contact">
     <div class="wrap">
@@ -272,5 +516,7 @@
   </div>
   <div class="wrap"><div class="wink">Fike Fix, or FixIt Fike, depending which way you read it. Either way: small jobs done right.</div></div>
 </footer>
+<script src="reviews-config.js"></script>
+<script src="reviews.js"></script>
 </body>
 </html>
